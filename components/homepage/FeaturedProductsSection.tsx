@@ -9,7 +9,7 @@ export default function FeaturedProductsSection() {
   console.log(featured);
 
   return (
-    <section className="py-12 bg-lightBeige">
+    <section className="py-12 bg-lightBeige" id="next-section">
       <div className="max-w-6xl mx-auto px-4">
         <h2 className="text-3xl font-semibold text-center mb-8 text-darkGray">
           Featured Products

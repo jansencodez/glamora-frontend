@@ -1,5 +1,6 @@
 import Image from "next/image";
 import image from "../../public/images/image.jpg";
+import Link from "next/link";
 
 export default function HeroSection() {
   return (
@@ -27,17 +28,17 @@ export default function HeroSection() {
         </p>
 
         {/* Call-to-Action Button */}
-        <a
+        <Link
           href="/products"
           className="inline-block bg-pink-500 hover:bg-pink-400 text-white text-lg font-semibold px-8 py-4 rounded-lg transition-transform transform hover:scale-105 shadow-lg animate-fade-in delay-400"
         >
           Shop Now
-        </a>
+        </Link>
       </div>
 
       {/* Scroll-Down Indicator */}
       <div className="absolute bottom-8 w-full flex justify-center animate-bounce">
-        <a
+        <Link
           href="#next-section"
           className="text-white text-sm flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity"
         >
@@ -56,7 +57,7 @@ export default function HeroSection() {
               d="M19 9l-7 7-7-7"
             />
           </svg>
-        </a>
+        </Link>
       </div>
     </section>
   );
