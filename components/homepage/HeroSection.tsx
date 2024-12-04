@@ -1,19 +1,20 @@
 import Image from "next/image";
-import image from "../../public/images/image.jpg";
 import Link from "next/link";
 
 export default function HeroSection() {
   return (
     <section className="relative h-screen flex items-center justify-center text-white bg-black main">
       {/* Background Image */}
-      <Image
-        src={image}
-        alt="Background"
-        layout="fill"
-        className="object-cover absolute inset-0 -z-10 opacity-65"
-        priority
-      />
-      <div className="absolute inset-0 bg-black opacity-50"></div>
+      <div className="absolute inset-0 -z-1 opacity-80">
+        <Image
+          src="https://res.cloudinary.com/farmus/image/upload/v1733304092/image_yhwbz8.jpg"
+          alt="Background"
+          layout="fill"
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black opacity-5"></div>
+      </div>
 
       {/* Hero Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center px-6">

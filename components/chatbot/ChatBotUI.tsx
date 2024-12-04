@@ -4,108 +4,90 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { FaRobot } from "react-icons/fa";
 import { useChatbot } from "@/context/ChatBotContext";
 
-const ChatbotUI = () => {
+const ChatFlow = () => {
   const { messages, userInput, handleUserInput } = useChatbot();
   const [inputValue, setInputValue] = useState(userInput);
   const [dragging, setDragging] = useState(false);
-  const [doubleTapReady, setDoubleTapReady] = useState(false);
   const [isChatbotVisible, setIsChatbotVisible] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
-
   const chatbotRef = useRef<HTMLDivElement | null>(null);
-  const doubleTapTimeout = useRef<number | null>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
-
+  const lastTap = useRef<number>(0);
   const initialPosition = useRef({ x: 0, y: 0 });
-
-  // Adjust position logic
-
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      const chatContainer = chatContainerRef.current;
-      chatContainer.scrollTop = chatContainer?.scrollHeight;
-    }
-  }, [messages]);
+  const frameRef = useRef<number>(0); // For smooth updates
 
   useEffect(() => {
     const applyInitialPosition = () => {
       if (chatbotRef.current) {
         const rect = chatbotRef.current.getBoundingClientRect();
-        const margin = 10; // 10px margin from the edge
+        const margin = 10; // Margin from screen edges
+
+        // Calculate initial position
         initialPosition.current = {
-          x: window.innerWidth - rect.width - margin, // Ensure it's not off the screen
-          y: (window.innerHeight - rect.height) / 2, // Centered vertically
+          x: Math.min(window.innerWidth - rect.width - margin, margin),
+          y: Math.min(
+            (window.innerHeight - rect.height) / 2,
+            window.innerHeight - rect.height - margin
+          ),
         };
 
-        // Update position
+        // Apply position
         chatbotRef.current.style.transform = `translate(${initialPosition.current.x}px, ${initialPosition.current.y}px)`;
       }
     };
 
-    // Apply the initial position
     applyInitialPosition();
 
-    // Resize listener to adjust position dynamically
+    // Adjust on window resize
     const handleResize = () => {
       if (chatbotRef.current) {
         const rect = chatbotRef.current.getBoundingClientRect();
-        const maxWidth = window.innerWidth - 20; // Leave 10px padding on each side
+        const margin = 10;
 
-        // Calculate the new width, ensuring the chatbot stays within the viewport
-        const newWidth = Math.min(rect.width, maxWidth);
+        const newLeft = Math.min(
+          Math.max(0, rect.left),
+          window.innerWidth - rect.width - margin
+        );
+        const newTop = Math.min(
+          Math.max(0, rect.top),
+          window.innerHeight - rect.height - margin
+        );
 
-        // Apply the updated width
-        chatbotRef.current.style.width = `${newWidth}px`;
+        chatbotRef.current.style.transform = `translate(${newLeft}px, ${newTop}px)`;
       }
     };
 
-    // Listen for window resize
     window.addEventListener("resize", handleResize);
-
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, [isChatbotVisible]);
 
-  // Prevent scrolling when dragging
   useEffect(() => {
-    if (dragging) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+    if (chatContainerRef.current) {
+      const chatContainer = chatContainerRef.current;
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     }
+  }, [messages]);
 
-    return () => {
-      document.body.style.overflow = ""; // Reset on cleanup
-    };
-  }, [dragging]);
+  const handleDoubleTapToDrag = (event: React.TouchEvent<HTMLDivElement>) => {
+    const currentTime = new Date().getTime();
+    const tapInterval = currentTime - lastTap.current;
 
-  const handleDoubleTap = useCallback(() => {
-    setDoubleTapReady(true);
-    if (doubleTapTimeout.current) {
-      clearTimeout(doubleTapTimeout.current);
+    if (tapInterval < 300 && chatbotRef.current) {
+      const rect = chatbotRef.current.getBoundingClientRect();
+      dragOffset.current.x = event.touches[0].clientX - rect.left;
+      dragOffset.current.y = event.touches[0].clientY - rect.top;
+      setDragging(true);
     }
-    doubleTapTimeout.current = window.setTimeout(() => {
-      setDoubleTapReady(false);
-    }, 300); // Timeout for double-tap readiness
-  }, []);
+    lastTap.current = currentTime;
+  };
 
   const handleMouseDragStart = (event: React.MouseEvent<HTMLDivElement>) => {
     if (chatbotRef.current) {
       const rect = chatbotRef.current.getBoundingClientRect();
       dragOffset.current.x = event.clientX - rect.left;
       dragOffset.current.y = event.clientY - rect.top;
-      setDragging(true);
-    }
-  };
-
-  const handleTouchDragStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    if (!doubleTapReady) return; // Allow drag only after double-tap
-
-    if (chatbotRef.current) {
-      const rect = chatbotRef.current.getBoundingClientRect();
-      dragOffset.current.x = event.touches[0].clientX - rect.left;
-      dragOffset.current.y = event.touches[0].clientY - rect.top;
       setDragging(true);
     }
   };
@@ -123,28 +105,24 @@ const ChatbotUI = () => {
           ? event.touches[0].clientY
           : (event as MouseEvent).clientY;
 
-      const rect = chatbotRef.current.getBoundingClientRect();
-      const newLeft = clientX - dragOffset.current.x;
-      const newTop = clientY - dragOffset.current.y;
+      // Throttling drag updates for better performance
+      const updatePosition = () => {
+        chatbotRef.current!.style.transform = `translate(${
+          clientX - dragOffset.current.x
+        }px, ${clientY - dragOffset.current.y}px)`;
+      };
 
-      // Restrict the chatbot's position within screen boundaries
-      const clampedLeft = Math.max(
-        0,
-        Math.min(newLeft, window.innerWidth - rect.width)
-      );
-      const clampedTop = Math.max(
-        0,
-        Math.min(newTop, window.innerHeight - rect.height)
-      );
-
-      chatbotRef.current.style.transform = `translate(${clampedLeft}px, ${clampedTop}px)`;
+      // Request animation frame for smooth updates
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      frameRef.current = requestAnimationFrame(updatePosition);
     },
     [dragging]
   );
 
   const handleDragEnd = useCallback(() => {
     setDragging(false);
-  }, [setDragging]);
+    if (frameRef.current) cancelAnimationFrame(frameRef.current); // Clean up frame request
+  }, []);
 
   useEffect(() => {
     const handleGlobalMouseMove = (event: MouseEvent) => handleDragMove(event);
@@ -168,22 +146,6 @@ const ChatbotUI = () => {
     };
   }, [dragging, handleDragMove, handleDragEnd]);
 
-  const handleInputChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setInputValue(event.target.value);
-    },
-    []
-  );
-
-  const handleSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      handleUserInput(inputValue);
-      setInputValue("");
-    },
-    [handleUserInput, inputValue]
-  );
-
   const toggleChatbotVisibility = () => {
     setIsChatbotVisible((prevState) => !prevState);
     if (!isChatbotVisible) {
@@ -193,44 +155,52 @@ const ChatbotUI = () => {
     }
   };
 
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleUserInput(inputValue);
+    setInputValue("");
+  };
+
   return (
     <>
       <div
         onClick={toggleChatbotVisibility}
-        className="fixed bottom-4 right-4 p-4 bg-pink-500 text-white rounded-full shadow-lg cursor-pointer z-50"
+        className="fixed bottom-4 right-4 p-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full shadow-lg cursor-pointer z-50 transition-transform transform hover:scale-110 focus:scale-110"
       >
-        <FaRobot size={24} />
+        <FaRobot size={28} />
       </div>
 
       {isChatbotVisible && (
         <div
           ref={chatbotRef}
-          className="chatbot-ui max-w-md mx-auto p-4 bg-pink-100 rounded-lg shadow-lg z-40"
+          className="chatbot-ui w-80 max-w-md mx-auto p-4 bg-gradient-to-b from-white to-pink-50 rounded-lg shadow-xl z-40 transition-transform"
           style={{
             position: "absolute",
             cursor: dragging ? "grabbing" : "grab",
-            width: "auto",
           }}
           onMouseDown={handleMouseDragStart}
-          onTouchStart={(event) => {
-            handleDoubleTap(); // Check for double-tap readiness
-            handleTouchDragStart(event); // Initiate drag if ready
-          }}
+          onTouchStart={handleDoubleTapToDrag}
         >
-          <h1 className="text-3xl font-semibold text-center mb-4 text-pink-700">
-            Chatbot
+          <h1 className="text-2xl font-bold text-center mb-4 text-pink-600">
+            ChatFlow
           </h1>
 
           <div
-            className="chat-container mb-4 overflow-y-auto max-h-60"
+            className="chat-container mb-4 overflow-y-auto max-h-64 p-2 bg-white shadow-inner rounded-lg"
             ref={chatContainerRef}
           >
             <ul className="list-none">
               {messages.map((message, index) => (
-                <li key={index} className="mb-3 flex flex-col space-y-2">
+                <li key={index} className="mb-2 flex flex-col space-y-1">
                   <div
                     className={`message self-end p-2 rounded-lg max-w-xs ${
-                      message.user ? "bg-pink-500 text-white" : "bg-transparent"
+                      message.user
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                        : ""
                     }`}
                   >
                     {message.user}
@@ -238,8 +208,8 @@ const ChatbotUI = () => {
                   <div
                     className={`message self-start p-2 rounded-lg max-w-xs ${
                       message.bot
-                        ? "bg-pink-200 text-pink-700"
-                        : "bg-transparent"
+                        ? "bg-gradient-to-r from-pink-200 to-pink-300 text-pink-700"
+                        : ""
                     }`}
                   >
                     {message.bot}
@@ -254,12 +224,12 @@ const ChatbotUI = () => {
               type="text"
               value={inputValue}
               onChange={handleInputChange}
-              className="p-2 border-2 border-pink-500 rounded-md"
+              className="p-2 border-2 border-pink-400 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
               placeholder="Type your message"
             />
             <button
               type="submit"
-              className="p-2 bg-pink-500 text-white rounded-md"
+              className="p-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-md shadow-md hover:opacity-90"
             >
               Send
             </button>
@@ -270,4 +240,4 @@ const ChatbotUI = () => {
   );
 };
 
-export default ChatbotUI;
+export default ChatFlow;
