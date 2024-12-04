@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import QRCode from "react-qr-code";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { BACKEND_URL } from "../config/config";
 
 interface OrderDetails {
   orderId: string;
@@ -50,7 +51,7 @@ const InnerVerifyPaymentPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch("/api/verify-payment", {
+      const response = await fetch(`${BACKEND_URL}/api/verify-payment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -108,7 +109,7 @@ const InnerVerifyPaymentPage: React.FC = () => {
   }, [reference, verifyPayment]);
 
   return (
-    <div className="p-6">
+    <div className="p-6 main">
       {loading && <p>Verifying your payment...</p>}
 
       {errorMessage && (
