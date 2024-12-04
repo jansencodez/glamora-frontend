@@ -1,5 +1,6 @@
 "use client";
-import rootUrl from "@/app/root-url/url";
+
+import { BACKEND_URL } from "@/app/config/config";
 import { Product } from "@/types/products";
 import React, { useState, useEffect } from "react";
 
@@ -20,7 +21,7 @@ const DiscountManagement = () => {
   // Fetch products from the backend
   const fetchProducts = async () => {
     try {
-      const response = await fetch(`${rootUrl}/api/products`); // Adjust this to your backend endpoint
+      const response = await fetch(`${BACKEND_URL}/api/products`); // Adjust this to your backend endpoint
       const data = await response.json();
       if (data.success) {
         setDiscounts(data.products); // Assuming the response contains the product data
@@ -46,7 +47,7 @@ const DiscountManagement = () => {
 
       try {
         const response = await fetch(
-          `${rootUrl}/api/products/${newDiscount.productId}`,
+          `${BACKEND_URL}/api/products/${newDiscount.productId}`,
           {
             method: "PUT",
             headers: {

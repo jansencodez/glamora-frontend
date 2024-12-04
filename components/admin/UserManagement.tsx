@@ -1,4 +1,6 @@
-import rootUrl from "@/app/root-url/url";
+"use client";
+
+import { BACKEND_URL } from "@/app/config/config";
 import { IUser } from "@/types/user";
 import React, { useState, useEffect } from "react";
 
@@ -18,7 +20,7 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       setLoading(true); // Set loading state to true when fetching starts
       try {
-        const response = await fetch(`${rootUrl}/api/users`); // Ensure this endpoint matches your backend
+        const response = await fetch(`${BACKEND_URL}/api/users`); // Ensure this endpoint matches your backend
         if (!response.ok) {
           throw new Error("Failed to fetch users");
         }
@@ -43,7 +45,7 @@ const UserManagement = () => {
         throw new Error("User not found");
       }
 
-      const response = await fetch(`${rootUrl}/api/users/${id}`, {
+      const response = await fetch(`${BACKEND_URL}/api/users/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

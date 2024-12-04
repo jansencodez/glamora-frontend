@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { formatCurrency } from "@/utils/formatCurrency";
-import rootUrl from "@/app/root-url/url";
+import { BACKEND_URL } from "@/app/config/config";
 
 // Define types for order details, items, and shipping/payment details
 type Product = {
@@ -58,7 +58,7 @@ const OrderManagement = () => {
       try {
         console.log("Token:", token); // Log the token to verify it's being passed
 
-        const response = await fetch(`${rootUrl}/api/order`, {
+        const response = await fetch(`${BACKEND_URL}/api/order`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
