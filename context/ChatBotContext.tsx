@@ -1,6 +1,6 @@
 "use client";
 import { BACKEND_URL } from "@/app/config/config";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 interface Message {
   user: string;
@@ -28,6 +28,12 @@ export const ChatbotProvider: React.FC<ChatbotProps> = ({ children }) => {
   const [userInput, setUserInput] = useState<string>("");
   const [botResponse, setBotResponse] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState<string>("");
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("token");
+    setUserId(storedUserId ?? "");
+  }, []);
 
   const handleUserInput = async (input: string) => {
     setUserInput(input);
@@ -44,7 +50,7 @@ export const ChatbotProvider: React.FC<ChatbotProps> = ({ children }) => {
     setLoading(true);
     const apiEndpoint = `${BACKEND_URL}/api/chat`;
     const headers = { "Content-Type": "application/json" };
-    const body = JSON.stringify({ input });
+    const body = JSON.stringify({ input, sessionId: userId });
 
     try {
       const response = await fetch(apiEndpoint, {

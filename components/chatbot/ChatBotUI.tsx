@@ -211,7 +211,7 @@ const ChatFlow = () => {
       {isChatbotVisible && (
         <div
           ref={chatbotRef}
-          className="chatbot-ui min-w-fit max-w-md mx-auto p-4 bg-gradient-to-b from-white to-pink-50 rounded-lg shadow-xl z-40"
+          className="chatbot-ui min-w-fit max-w-md mx-auto p-4 bg-gradient-to-b from-white to-pink-50 rounded-lg shadow-xl z-50"
           style={{
             position: "absolute",
             cursor: dragging ? "grabbing" : "grab",

@@ -25,29 +25,53 @@ const SingleProductUpload: React.FC<SingleProductUploadProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    const formData = new FormData();
+
+    formData.append("name", newProduct.name);
+    formData.append("price", newProduct.price.toString());
+    formData.append("description", newProduct.description);
+    formData.append("category", newProduct.category);
+    formData.append("rating", newProduct.rating.toString());
+
+    newProduct.imageUrls.forEach((file) => {
+      formData.append("images", file); // 'images' is the field name in multer
+    });
+
     try {
-      const response = await fetch(`${BACKEND_URL}:5000/api/products`, {
+      const response = await fetch(`${BACKEND_URL}/api/products`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newProduct),
+        body: formData,
       });
 
       if (response.ok) {
         const data = await response.json();
         console.log("Product added successfully:", data);
-        onProductAdded();
+
+        // Clear the form
+        setNewProduct({
+          name: "",
+          price: 0,
+          description: "",
+          category: "",
+          imageUrls: [],
+          rating: 0,
+        });
+        setImagePreviews([]);
+
+        onProductAdded(); // Refresh product table
       } else {
-        console.error(
+        console.log(
           "Error adding product:",
           response.status,
           response.statusText
         );
       }
     } catch (error) {
-      console.error("Error adding product:", error);
+      console.log("Error adding product:", error);
     } finally {
       setLoading(false);
     }
@@ -71,6 +95,7 @@ const SingleProductUpload: React.FC<SingleProductUploadProps> = ({
       onSubmit={handleSubmit}
       className="space-y-4 p-6 max-w-xl mx-auto bg-white rounded-lg shadow-lg"
     >
+      {/* Input fields for product details */}
       <div>
         <label className="block text-sm font-medium text-gray-700">
           Product Name
@@ -85,16 +110,16 @@ const SingleProductUpload: React.FC<SingleProductUploadProps> = ({
           className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-
       <div>
         <label className="block text-sm font-medium text-gray-700">Price</label>
         <input
           type="number"
           placeholder="Price"
-          value={newProduct.price}
+          value={newProduct.price || ""}
           onChange={(e) =>
             setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })
           }
+          step="any"
           className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
@@ -135,10 +160,11 @@ const SingleProductUpload: React.FC<SingleProductUploadProps> = ({
         <input
           type="number"
           placeholder="Rating"
-          value={newProduct.rating}
+          value={newProduct.rating || ""}
           onChange={(e) =>
-            setNewProduct({ ...newProduct, rating: parseInt(e.target.value) })
+            setNewProduct({ ...newProduct, rating: parseFloat(e.target.value) })
           }
+          step="any"
           className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
