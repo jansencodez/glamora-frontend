@@ -79,10 +79,9 @@ const ChatFlow = () => {
       dragOffset.current.x = event.touches[0].clientX - rect.left;
       dragOffset.current.y = event.touches[0].clientY - rect.top;
       setDragging(true);
+      lastTap.current = currentTime; // Only update lastTap.current when a double tap is detected
     }
-    lastTap.current = currentTime;
   };
-
   const handleMouseDragStart = (event: React.MouseEvent<HTMLDivElement>) => {
     if (chatbotRef.current) {
       const rect = chatbotRef.current.getBoundingClientRect();
@@ -119,9 +118,21 @@ const ChatFlow = () => {
       // Request animation frame for smooth updates
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
       frameRef.current = requestAnimationFrame(updatePosition);
+      document.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
+      document.addEventListener("touchend", handleTouchEnd);
     },
     [dragging]
   );
+
+  const handleTouchMove = (event: TouchEvent) => {
+    event.preventDefault();
+  };
+
+  const handleTouchEnd = (event: TouchEvent) => {
+    event.preventDefault();
+  };
 
   const handleDragEnd = useCallback(() => {
     setDragging(false);
@@ -129,6 +140,8 @@ const ChatFlow = () => {
     document.body.style.overflow = "";
     document.body.style.touchAction = "";
     document.removeEventListener("selectstart", handleSelectStart, true);
+    document.removeEventListener("touchmove", handleTouchMove);
+    document.removeEventListener("touchend", handleTouchEnd);
   }, []);
 
   const handleSelectStart = (event: Event) => {
