@@ -98,3 +98,25 @@ body {
   transform: translateX(-100%);
   transition: opacity 500ms ease, transform 500ms ease;
 }
+
+/* globals.css or tailwind.css */
+.blur-edges {
+  position: relative;
+  overflow: hidden;
+}
+
+.blur-edges::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  filter: blur(10px);
+  pointer-events: none;
+}

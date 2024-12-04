@@ -3,17 +3,17 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="relative h-screen flex items-center justify-center text-white bg-black main">
+    <section className="relative lg:h-screen md:h-screen h-[60vh] flex items-center justify-center text-white bg-gradient-to-t from-gray-300 via-white to-gray-400 lg:bg-black md:bg-black main">
       {/* Background Image */}
-      <div className="absolute inset-0 -z-1 opacity-80">
+      <div className="absolute inset-0 -z-1 opacity-100">
         <Image
           src="https://res.cloudinary.com/farmus/image/upload/v1733304092/image_yhwbz8.jpg"
           alt="Background"
           layout="fill"
-          className="object-cover"
+          className="object-contain lg:object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black opacity-5"></div>
+        <div className="absolute inset-0 bg-black opacity-30"></div>
       </div>
 
       {/* Hero Content */}
