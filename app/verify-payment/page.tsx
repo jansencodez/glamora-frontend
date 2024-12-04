@@ -51,14 +51,17 @@ const InnerVerifyPaymentPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/verify-payment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ reference, orderId }),
-      });
+      const response = await fetch(
+        `${BACKEND_URL}/api/payment/verify-payment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ reference, orderId }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to verify payment.");
