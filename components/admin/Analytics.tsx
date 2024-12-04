@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import rootUrl from "@/app/root-url/url";
 import { Bar, Line, Pie, Doughnut } from "react-chartjs-2";
 import { MdArrowDropDown } from "react-icons/md";
 import Loader from "../Loader";
@@ -16,6 +15,7 @@ import {
   Legend,
 } from "chart.js";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { BACKEND_URL } from "@/app/config/config";
 
 ChartJS.register(
   CategoryScale,
@@ -51,7 +51,7 @@ const Analytics = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await fetch(`${rootUrl}/api/analytics`);
+        const response = await fetch(`${BACKEND_URL}/api/analytics`);
         const data = await response.json();
         setAnalyticsData(data);
       } catch (error) {

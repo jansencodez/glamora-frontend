@@ -3,8 +3,8 @@
 import React, { ChangeEvent, useState } from "react";
 import axios from "axios";
 import { useCart } from "@/context/CartContext";
-import rootUrl from "@/app/root-url/url";
 import { useAuth } from "@/context/AuthContext";
+import { BACKEND_URL } from "@/app/config/config";
 
 function Checkout() {
   const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +56,7 @@ function Checkout() {
 
       if (user) {
         const orderResponse = await axios.post(
-          `${rootUrl}/api/payment/initialize-payment`,
+          `${BACKEND_URL}/api/payment/initialize-payment`,
           {
             email: user.email, // Pass email from user context
             amount: finalPrice, // Amount for the transaction (final price)
