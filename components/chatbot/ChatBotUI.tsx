@@ -89,8 +89,8 @@ const ChatFlow = () => {
       dragOffset.current.x = event.clientX - rect.left;
       dragOffset.current.y = event.clientY - rect.top;
       setDragging(true);
-      document.body.style.overflow = "hidden";
-      document.body.style.touchAction = "none";
+      document.body.style.overflow = "hidden"; // Prevent scrolling when dragging
+      document.body.style.touchAction = "none"; // Prevent dragging of the body
       document.addEventListener("selectstart", handleSelectStart, true);
     }
   };
@@ -108,12 +108,27 @@ const ChatFlow = () => {
           ? event.touches[0].clientY
           : (event as MouseEvent).clientY;
 
-      // Directly update position without animation frame
+      // Calculate new position while ensuring the chatbot stays within the viewport boundaries
+      const rect = chatbotRef.current.getBoundingClientRect();
+      const margin = 10; // Margin from screen edges
+
+      // Get the new positions, ensuring boundaries
+      const newX = Math.min(
+        Math.max(0, clientX - dragOffset.current.x),
+        window.innerWidth - rect.width - margin
+      );
+      const newY = Math.min(
+        Math.max(0, clientY - dragOffset.current.y),
+        window.innerHeight - rect.height - margin
+      );
+
+      // Update position directly
       if (chatbotRef.current) {
-        chatbotRef.current.style.transform = `translate(${
-          clientX - dragOffset.current.x
-        }px, ${clientY - dragOffset.current.y}px)`;
+        chatbotRef.current.style.transform = `translate(${newX}px, ${newY}px)`;
       }
+
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
     },
     [dragging]
   );
@@ -170,6 +185,20 @@ const ChatFlow = () => {
     setInputValue("");
   };
 
+  // Prevent scroll behavior while dragging
+  useEffect(() => {
+    const handleWheel = (event: WheelEvent) => {
+      if (dragging) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+    };
+  }, [dragging]);
+
   return (
     <>
       <div
@@ -215,7 +244,7 @@ const ChatFlow = () => {
                     <div
                       className={`message self-start p-2 rounded-lg max-w-xs ${
                         message.bot
-                          ? "bg-gradient-to-r from-pink-200 to-pink-300 text-pink-700"
+                          ? "bg-gradient-to-l from-purple-500 to-pink-500 text-white"
                           : ""
                       }`}
                     >
@@ -226,20 +255,14 @@ const ChatFlow = () => {
             </ul>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
+          <form onSubmit={handleSubmit}>
             <input
               type="text"
               value={inputValue}
               onChange={handleInputChange}
-              className="p-2 border-2 border-pink-400 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-              placeholder="Type your message"
+              className="w-full p-2 mt-2 rounded-md border bg-white text-pink-600 shadow-md"
+              placeholder="Type a message..."
             />
-            <button
-              type="submit"
-              className="p-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-md shadow-md hover:opacity-90"
-            >
-              Send
-            </button>
           </form>
         </div>
       )}
