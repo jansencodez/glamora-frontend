@@ -10,7 +10,7 @@ export default function HeroSection() {
         src={image}
         alt="Background"
         layout="fill"
-        className="object-cover absolute inset-0 z-10 opacity-65"
+        className="object-cover absolute inset-0 -z-10 opacity-65"
         priority
       />
       <div className="absolute inset-0 bg-black opacity-50"></div>
