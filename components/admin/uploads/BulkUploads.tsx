@@ -3,7 +3,7 @@ import { useToast } from "@/context/ToastContext";
 import { useState } from "react";
 import Papa from "papaparse";
 import Image from "next/image";
-import rootUrl from "@/app/root-url/url";
+import { BACKEND_URL } from "@/app/config/config";
 
 type Product = {
   name: string;
@@ -122,7 +122,7 @@ const BulkProductUpload: React.FC<BulkProductUploadProps> = ({
         }
       }
 
-      const response = await fetch(`${rootUrl}/api/products/bulk`, {
+      const response = await fetch(`${BACKEND_URL}/api/products/bulk`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

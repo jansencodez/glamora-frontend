@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import rootUrl from "@/app/root-url/url";
+import { BACKEND_URL } from "@/app/config/config";
 
 interface SingleProductUploadProps {
   onProductAdded: () => void; // Callback to refresh the product table
@@ -26,7 +26,7 @@ const SingleProductUpload: React.FC<SingleProductUploadProps> = ({
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch(`${rootUrl}:5000/api/products`, {
+      const response = await fetch(`${BACKEND_URL}:5000/api/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
