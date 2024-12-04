@@ -12,6 +12,7 @@ interface ChatbotContextValue {
   userInput: string;
   botResponse: string;
   handleUserInput: (input: string) => Promise<void>;
+  loading: boolean;
 }
 
 const ChatbotContext = createContext<ChatbotContextValue | undefined>(
@@ -26,6 +27,7 @@ export const ChatbotProvider: React.FC<ChatbotProps> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState<string>("");
   const [botResponse, setBotResponse] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   const handleUserInput = async (input: string) => {
     setUserInput(input);
@@ -39,6 +41,7 @@ export const ChatbotProvider: React.FC<ChatbotProps> = ({ children }) => {
   };
 
   const getBotResponse = async (input: string): Promise<string> => {
+    setLoading(true);
     const apiEndpoint = `${BACKEND_URL}/api/chat`;
     const headers = { "Content-Type": "application/json" };
     const body = JSON.stringify({ input });
@@ -50,6 +53,9 @@ export const ChatbotProvider: React.FC<ChatbotProps> = ({ children }) => {
         body,
       });
       const data = await response.json();
+      if (data) {
+        setLoading(false);
+      }
       return data.response;
     } catch (error) {
       console.log(error);
@@ -64,6 +70,7 @@ export const ChatbotProvider: React.FC<ChatbotProps> = ({ children }) => {
         userInput,
         botResponse,
         handleUserInput,
+        loading,
       }}
     >
       {children}

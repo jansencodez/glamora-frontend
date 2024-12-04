@@ -3,9 +3,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { FaRobot } from "react-icons/fa";
 import { useChatbot } from "@/context/ChatBotContext";
+import Loader from "../Loader";
 
 const ChatFlow = () => {
-  const { messages, userInput, handleUserInput } = useChatbot();
+  const { messages, userInput, handleUserInput, loading } = useChatbot();
   const [inputValue, setInputValue] = useState(userInput);
   const [dragging, setDragging] = useState(false);
   const [isChatbotVisible, setIsChatbotVisible] = useState(false);
@@ -14,7 +15,6 @@ const ChatFlow = () => {
   const dragOffset = useRef({ x: 0, y: 0 });
   const lastTap = useRef<number>(0);
   const initialPosition = useRef({ x: 0, y: 0 });
-  const frameRef = useRef<number>(0); // For smooth updates
 
   useEffect(() => {
     const applyInitialPosition = () => {
@@ -79,9 +79,10 @@ const ChatFlow = () => {
       dragOffset.current.x = event.touches[0].clientX - rect.left;
       dragOffset.current.y = event.touches[0].clientY - rect.top;
       setDragging(true);
-      lastTap.current = currentTime; // Only update lastTap.current when a double tap is detected
     }
+    lastTap.current = currentTime;
   };
+
   const handleMouseDragStart = (event: React.MouseEvent<HTMLDivElement>) => {
     if (chatbotRef.current) {
       const rect = chatbotRef.current.getBoundingClientRect();
@@ -107,41 +108,21 @@ const ChatFlow = () => {
           ? event.touches[0].clientY
           : (event as MouseEvent).clientY;
 
-      // Throttling drag updates for better performance
-      const updatePosition = () => {
-        chatbotRef.current!.style.transform = `translate(${
+      // Directly update position without animation frame
+      if (chatbotRef.current) {
+        chatbotRef.current.style.transform = `translate(${
           clientX - dragOffset.current.x
         }px, ${clientY - dragOffset.current.y}px)`;
-        frameRef.current = requestAnimationFrame(updatePosition);
-      };
-
-      // Request animation frame for smooth updates
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
-      frameRef.current = requestAnimationFrame(updatePosition);
-      document.addEventListener("touchmove", handleTouchMove, {
-        passive: false,
-      });
-      document.addEventListener("touchend", handleTouchEnd);
+      }
     },
     [dragging]
   );
 
-  const handleTouchMove = (event: TouchEvent) => {
-    event.preventDefault();
-  };
-
-  const handleTouchEnd = (event: TouchEvent) => {
-    event.preventDefault();
-  };
-
   const handleDragEnd = useCallback(() => {
     setDragging(false);
-    if (frameRef.current) cancelAnimationFrame(frameRef.current); // Clean up frame request
     document.body.style.overflow = "";
     document.body.style.touchAction = "";
     document.removeEventListener("selectstart", handleSelectStart, true);
-    document.removeEventListener("touchmove", handleTouchMove);
-    document.removeEventListener("touchend", handleTouchEnd);
   }, []);
 
   const handleSelectStart = (event: Event) => {
@@ -201,7 +182,7 @@ const ChatFlow = () => {
       {isChatbotVisible && (
         <div
           ref={chatbotRef}
-          className="chatbot-ui min-w-fit max-w-md mx-auto p-4 bg-gradient-to-b from-white to-pink-50 rounded-lg shadow-xl z-40 transition-transform"
+          className="chatbot-ui min-w-fit max-w-md mx-auto p-4 bg-gradient-to-b from-white to-pink-50 rounded-lg shadow-xl z-40"
           style={{
             position: "absolute",
             cursor: dragging ? "grabbing" : "grab",
@@ -218,28 +199,30 @@ const ChatFlow = () => {
             ref={chatContainerRef}
           >
             <ul className="list-none">
-              {messages.map((message, index) => (
-                <li key={index} className="mb-2 flex flex-col space-y-1">
-                  <div
-                    className={`message self-end p-2 rounded-lg max-w-xs ${
-                      message.user
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                        : ""
-                    }`}
-                  >
-                    {message.user}
-                  </div>
-                  <div
-                    className={`message self-start p-2 rounded-lg max-w-xs ${
-                      message.bot
-                        ? "bg-gradient-to-r from-pink-200 to-pink-300 text-pink-700"
-                        : ""
-                    }`}
-                  >
-                    {message.bot}
-                  </div>
-                </li>
-              ))}
+              {loading && <Loader />}
+              {messages &&
+                messages.map((message, index) => (
+                  <li key={index} className="mb-2 flex flex-col space-y-1">
+                    <div
+                      className={`message self-end p-2 rounded-lg max-w-xs ${
+                        message.user
+                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                          : ""
+                      }`}
+                    >
+                      {message.user}
+                    </div>
+                    <div
+                      className={`message self-start p-2 rounded-lg max-w-xs ${
+                        message.bot
+                          ? "bg-gradient-to-r from-pink-200 to-pink-300 text-pink-700"
+                          : ""
+                      }`}
+                    >
+                      {message.bot}
+                    </div>
+                  </li>
+                ))}
             </ul>
           </div>
 
