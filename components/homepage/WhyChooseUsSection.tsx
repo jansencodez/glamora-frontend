@@ -1,4 +1,6 @@
 import { formatCurrency } from "@/utils/formatCurrency";
+import Link from "next/link";
+import { FaArrowRight } from "react-icons/fa";
 
 export default function WhyChooseUsSection() {
   return (
@@ -28,6 +30,17 @@ export default function WhyChooseUsSection() {
             </h3>
             <p className="text-gray-600">
               Support sustainable beauty products.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-teal-500 mb-2">About us</h3>
+            <p className="text-gray-600">
+              <Link
+                href="/about"
+                className="flex items-center text-pink-800 underline"
+              >
+                lean more about us, <FaArrowRight />
+              </Link>
             </p>
           </div>
         </div>
