@@ -89,6 +89,9 @@ const ChatFlow = () => {
       dragOffset.current.x = event.clientX - rect.left;
       dragOffset.current.y = event.clientY - rect.top;
       setDragging(true);
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+      document.addEventListener("selectstart", handleSelectStart, true);
     }
   };
 
@@ -110,6 +113,7 @@ const ChatFlow = () => {
         chatbotRef.current!.style.transform = `translate(${
           clientX - dragOffset.current.x
         }px, ${clientY - dragOffset.current.y}px)`;
+        frameRef.current = requestAnimationFrame(updatePosition);
       };
 
       // Request animation frame for smooth updates
@@ -122,7 +126,14 @@ const ChatFlow = () => {
   const handleDragEnd = useCallback(() => {
     setDragging(false);
     if (frameRef.current) cancelAnimationFrame(frameRef.current); // Clean up frame request
+    document.body.style.overflow = "";
+    document.body.style.touchAction = "";
+    document.removeEventListener("selectstart", handleSelectStart, true);
   }, []);
+
+  const handleSelectStart = (event: Event) => {
+    event.preventDefault();
+  };
 
   useEffect(() => {
     const handleGlobalMouseMove = (event: MouseEvent) => handleDragMove(event);
@@ -177,7 +188,7 @@ const ChatFlow = () => {
       {isChatbotVisible && (
         <div
           ref={chatbotRef}
-          className="chatbot-ui w-80 max-w-md mx-auto p-4 bg-gradient-to-b from-white to-pink-50 rounded-lg shadow-xl z-40 transition-transform"
+          className="chatbot-ui min-w-fit max-w-md mx-auto p-4 bg-gradient-to-b from-white to-pink-50 rounded-lg shadow-xl z-40 transition-transform"
           style={{
             position: "absolute",
             cursor: dragging ? "grabbing" : "grab",
