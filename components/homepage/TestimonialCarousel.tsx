@@ -56,10 +56,14 @@ export default function TestimonialCarousel() {
 
   const handleWheel = useCallback(
     (e: WheelEvent) => {
-      if (e.deltaY > 0) {
-        nextTestimonial();
-      } else {
-        prevTestimonial();
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        // Only handle horizontal scroll
+        e.preventDefault();
+        if (e.deltaX > 0) {
+          nextTestimonial();
+        } else {
+          prevTestimonial();
+        }
       }
     },
     [nextTestimonial, prevTestimonial]
@@ -67,7 +71,6 @@ export default function TestimonialCarousel() {
 
   useEffect(() => {
     const debouncedWheelHandler = (e: WheelEvent) => {
-      e.preventDefault();
       handleWheel(e);
     };
 
