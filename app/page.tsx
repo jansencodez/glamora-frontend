@@ -11,11 +11,11 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 main">
       <HeroSection />
       <FeaturedProductsSection />
+      <CountdownSection /> {/* Offers and discounts */}
       <WhyChooseUsSection />
-      <NewsletterSignupSection />
-      <FeaturedBrandsSection />
       <TestimonialCarousel />
-      <CountdownSection />
+      <FeaturedBrandsSection />
+      <NewsletterSignupSection />
     </div>
   );
 }
