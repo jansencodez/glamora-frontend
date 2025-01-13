@@ -25,7 +25,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className="relative bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 p-4 shadow-lg z-50"
+      className="relative bg-gradient-to-r from-pink-600 via-pink-700 to-pink-800 p-4 shadow-lg z-50"
       style={{
         backgroundImage:
           "url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 80 40%27 width=%27100%25%27 height=%27100%25%27%3E%3Cg fill=%27%23ffffff%27 fill-opacity=%270.15%27%3E%3Ccircle r=%2716%27 cx=%270%27 cy=%270%27/%3E%3Ccircle r=%2716%27 cx=%2740%27 cy=%2718%27/%3E%3Ccircle r=%2716%27 cx=%2780%27 cy=%270%27/%3E%3C/g%3E%3C/svg%3E')",
