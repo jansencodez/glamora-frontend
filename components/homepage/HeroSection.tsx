@@ -10,7 +10,7 @@ export default function HeroSection() {
           src="https://res.cloudinary.com/farmus/image/upload/v1733344440/products/gwxl0wm4xxxhufbapqfz.jpg"
           alt="Background"
           layout="fill"
-          className="object-contain lg:object-cover"
+          className="object-cover"
           priority
         />
         <div className="absolute inset-0 bg-black opacity-30"></div>
