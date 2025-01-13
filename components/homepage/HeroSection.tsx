@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="relative lg:h-screen md:h-screen h-[60vh] flex items-center justify-center text-white bg-gradient-to-t from-gray-300 via-white to-gray-400 lg:bg-black md:bg-black main">
+    <section className="relative h-screen flex items-center justify-center text-white bg-gradient-to-t from-gray-300 via-white to-gray-400 lg:bg-black md:bg-black main">
       {/* Background Image */}
       <div className="absolute inset-0 -z-1 opacity-100">
         <Image
