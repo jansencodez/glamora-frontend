@@ -7,7 +7,7 @@ export default function HeroSection() {
       {/* Background Image */}
       <div className="absolute inset-0 -z-1 opacity-100">
         <Image
-          src="https://res.cloudinary.com/farmus/image/upload/v1733304092/image_yhwbz8.jpg"
+          src="https://res.cloudinary.com/farmus/image/upload/v1733344440/products/gwxl0wm4xxxhufbapqfz.jpg"
           alt="Background"
           layout="fill"
           className="object-contain lg:object-cover"
