@@ -47,8 +47,12 @@ export default function Signup() {
       ); // Store the token
       window.location.href = "/"; // Redirect to the homepage or dashboard
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message || "Something went wrong. Please try again.");
+      if (axios.isAxiosError(error) && error.response) {
+        // Check if the error is an Axios error and has a response
+        setError(
+          error.response?.data.message ||
+            "Invalid credentials. Please try again."
+        );
       }
     } finally {
       setLoading(false);
